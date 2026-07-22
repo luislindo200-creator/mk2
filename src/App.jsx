@@ -10,7 +10,7 @@ const formatCurrency = (price) => {
 };
 
 // Component: Header
-const Header = ({ cartCount, onOpenCart, onHome }) => (
+const Header = ({ cartCount, onOpenCart, onHome, onOpenAI }) => (
   <header className="header">
     <div className="container header-content">
       <div className="logo" style={{cursor: 'pointer'}} onClick={onHome}>
@@ -18,7 +18,10 @@ const Header = ({ cartCount, onOpenCart, onHome }) => (
         <span className="logo-sub">SPORTWEAR</span>
       </div>
       <div className="header-actions">
-        <button className="icon-btn" aria-label="Buscar"><Search size={24} /></button>
+        <button className="icon-btn ai-header-btn" onClick={onOpenAI} aria-label="Assistente IA" title="Assistente de Vendas IA">
+          <Sparkles size={18} className="sparkles-icon" />
+          <span className="header-ai-label">IA Recomenda</span>
+        </button>
         <button className="icon-btn cart-icon-btn" onClick={onOpenCart} aria-label="Carrinho">
           <ShoppingCart size={24} />
           {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
@@ -367,14 +370,13 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveIte
 };
 
 // Component: AI Chatbot Assistant (Groq API) with Interactive Product Cards
-const AIChatAssistant = ({ products, onViewDetails }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AIChatAssistant = ({ products, onViewDetails, isOpen, setIsOpen }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       sender: 'ai',
-      text: 'Olá! Sou o assistente de IA da MK2. Me conte seu objetivo de corrida ou numeração que eu te indico os tênis ideais!',
+      text: 'Olá! Sou o assistente virtual de Inteligência Artificial da MK2 Sportwear. Me conte seu objetivo de corrida ou a numeração que você procura para eu recomendar os modelos ideais do nosso estoque!',
       recommendedProducts: []
     }
   ]);
@@ -480,113 +482,125 @@ Regras obrigatórias:
       {/* Floating AI Button */}
       <button 
         className="ai-chat-fab" 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(true)}
         aria-label="Abrir assistente de IA"
       >
         <Sparkles size={20} className="sparkles-icon" />
         <span className="fab-text">IA Recomenda</span>
       </button>
 
-      {/* AI Chat Window */}
+      {/* Full-Screen AI Page Overlay */}
       {isOpen && (
-        <div className="ai-chat-window">
-          <div className="ai-chat-header">
-            <div className="ai-header-title">
-              <Bot size={22} className="ai-header-icon" />
+        <div className="ai-chat-page-overlay">
+          <div className="ai-page-header">
+            <button className="ai-page-back-btn" onClick={() => setIsOpen(false)}>
+              <ArrowLeft size={20} />
+              <span>Voltar ao Catálogo</span>
+            </button>
+            <div className="ai-page-header-title">
+              <Bot size={24} className="ai-header-icon" />
               <div>
-                <h4>Assistente MK2 (IA)</h4>
-                <span className="ai-status">Online • Respostas rápidas</span>
+                <h2>Assistente de Vendas MK2</h2>
+                <span className="ai-status">Online • Recomendação Inteligente</span>
               </div>
             </div>
-            <button className="ai-close-btn" onClick={() => setIsOpen(false)}>
-              <X size={20} />
+            <button className="ai-page-close-btn" onClick={() => setIsOpen(false)}>
+              <X size={24} />
             </button>
           </div>
 
-          <div className="ai-chat-messages">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`ai-message-wrapper ${msg.sender}`}>
-                <div className={`ai-message-bubble ${msg.sender}`}>
-                  <div className="bubble-content">{msg.text}</div>
-                </div>
-
-                {/* Render Interactive Shoe Cards if AI recommended products */}
-                {msg.sender === 'ai' && msg.recommendedProducts && msg.recommendedProducts.length > 0 && (
-                  <div className="chat-recommended-products">
-                    <div className="chat-rec-label">Clique para ver detalhes:</div>
-                    {msg.recommendedProducts.map((prod) => {
-                      const pixPrice = prod.precoVenda * 0.90;
-                      const thumb = prod.urlFotos && prod.urlFotos.length > 0 ? prod.urlFotos[0] : null;
-
-                      return (
-                        <div 
-                          key={prod.similaridade || prod.nome} 
-                          className="chat-product-card-item"
-                          onClick={() => handleProductClick(prod)}
-                        >
-                          <div className="chat-card-thumb-wrap">
-                            {thumb && <img src={thumb} alt={prod.nome} className="chat-card-thumb" />}
-                          </div>
-                          <div className="chat-card-details">
-                            <span className="chat-card-brand">{prod.marca}</span>
-                            <h5 className="chat-card-name">{prod.nome}</h5>
-                            <div className="chat-card-price">{formatCurrency(pixPrice)} <span className="chat-card-pix">PIX</span></div>
-                          </div>
-                          <div className="chat-card-arrow">
-                            <ChevronRight size={18} />
-                          </div>
-                        </div>
-                      );
-                    })}
+          <div className="ai-page-messages">
+            <div className="ai-messages-inner container">
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`ai-message-wrapper ${msg.sender}`}>
+                  <div className={`ai-message-bubble ${msg.sender}`}>
+                    <div className="bubble-content">{msg.text}</div>
                   </div>
-                )}
-              </div>
-            ))}
 
-            {loading && (
-              <div className="ai-message-wrapper ai">
-                <div className="ai-message-bubble ai loading-bubble">
-                  <div className="typing-dots">
-                    <span></span><span></span><span></span>
+                  {/* Render Interactive Shoe Cards if AI recommended products */}
+                  {msg.sender === 'ai' && msg.recommendedProducts && msg.recommendedProducts.length > 0 && (
+                    <div className="chat-recommended-products">
+                      <div className="chat-rec-label">Produtos Recomendados (Clique para ver detalhes):</div>
+                      <div className="chat-cards-grid">
+                        {msg.recommendedProducts.map((prod) => {
+                          const pixPrice = prod.precoVenda * 0.90;
+                          const thumb = prod.urlFotos && prod.urlFotos.length > 0 ? prod.urlFotos[0] : null;
+
+                          return (
+                            <div 
+                              key={prod.similaridade || prod.nome} 
+                              className="chat-product-card-item"
+                              onClick={() => handleProductClick(prod)}
+                            >
+                              <div className="chat-card-thumb-wrap">
+                                {thumb && <img src={thumb} alt={prod.nome} className="chat-card-thumb" />}
+                              </div>
+                              <div className="chat-card-details">
+                                <span className="chat-card-brand">{prod.marca}</span>
+                                <h5 className="chat-card-name">{prod.nome}</h5>
+                                <div className="chat-card-price">{formatCurrency(pixPrice)} <span className="chat-card-pix notranslate" translate="no">PIX</span></div>
+                              </div>
+                              <div className="chat-card-arrow">
+                                <ChevronRight size={20} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {loading && (
+                <div className="ai-message-wrapper ai">
+                  <div className="ai-message-bubble ai loading-bubble">
+                    <div className="typing-dots">
+                      <span></span><span></span><span></span>
+                    </div>
                   </div>
                 </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          <div className="ai-page-footer">
+            <div className="container">
+              <div className="ai-quick-prompts">
+                <button onClick={() => handleSendMessage("Qual o tênis com melhor amortecimento?")}>
+                  👟 Amortecimento
+                </button>
+                <button onClick={() => handleSendMessage("Quais modelos têm tamanho 42?")}>
+                  📏 Tamanho 42
+                </button>
+                <button onClick={() => handleSendMessage("Quais tênis são indicados para corrida de rua?")}>
+                  🏃 Corrida de Rua
+                </button>
+                <button onClick={() => handleSendMessage("Mostre os modelos com desconto no PIX")}>
+                  🔥 Ofertas no PIX
+                </button>
               </div>
-            )}
-            <div ref={messagesEndRef} />
+
+              <form 
+                className="ai-chat-input-wrap"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Digite sua dúvida ou numeração (ex: preciso de tênis nº 41)..."
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                />
+                <button type="submit" disabled={loading || !inputMessage.trim()}>
+                  <Send size={18} />
+                </button>
+              </form>
+            </div>
           </div>
-
-          {/* Quick Prompts */}
-          <div className="ai-quick-prompts">
-            <button onClick={() => handleSendMessage("Qual o tênis com melhor amortecimento?")}>
-              👟 Amortecimento
-            </button>
-
-            <button onClick={() => handleSendMessage("Quais modelos têm tamanho 42?")}>
-              📏 Tamanho 42
-            </button>
-
-            <button onClick={() => handleSendMessage("Mostre todos os modelos em promoção")}>
-              🔥 Modelos da loja
-            </button>
-          </div>
-
-          <form 
-            className="ai-chat-input-wrap"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage();
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Pergunte sobre um modelo ou numeração..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-            />
-            <button type="submit" disabled={loading || !inputMessage.trim()}>
-              <Send size={18} />
-            </button>
-          </form>
         </div>
       )}
     </>
@@ -605,8 +619,9 @@ function App() {
   const [selectedBrand, setSelectedBrand] = useState('Todas');
   const [toastMessage, setToastMessage] = useState(null);
   
-  // Cart State
+  // Cart & AI State
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAIOpen, setIsAIOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
@@ -750,9 +765,10 @@ function App() {
       <Header 
         cartCount={cartCount} 
         onOpenCart={() => setIsCartOpen(true)} 
-        onHome={handleBackToCatalog} 
+        onHome={handleBackToCatalog}
+        onOpenAI={() => setIsAIOpen(true)}
       />
-      
+
       <ToastNotification message={toastMessage} onClose={() => setToastMessage(null)} />
 
       {currentView === 'catalog' && (
@@ -807,11 +823,13 @@ function App() {
         onRemoveItem={handleRemoveFromCart}
       />
 
-      {/* Floating AI Recommendation Chatbot with Interactive Cards */}
+      {/* Full-Screen AI Recommendation Assistant */}
       {!loading && products.length > 0 && (
         <AIChatAssistant 
           products={products} 
           onViewDetails={handleViewDetails} 
+          isOpen={isAIOpen}
+          setIsOpen={setIsAIOpen}
         />
       )}
     </div>
