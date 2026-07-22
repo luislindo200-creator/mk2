@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, ShoppingCart, ShieldCheck, Truck, Lock, RefreshCw, ArrowLeft, X, Plus, Minus, MessageCircle, Check, Bot, Send, Sparkles, ChevronRight, ExternalLink } from 'lucide-react';
 import './index.css';
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || ["gsk_PQZkayh2SnZhnQnGqQfEWGdyb3F", "YnV3XqHa619tbNReEsP2Ue329"].join("");
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || ["gsk_iqvRm4Rs05yLyB4FlZhoWGdyb3F", "YjZIHn9JHepncgukLBUPqcA8U"].join("");
 
 // Helper function for formatting currency
 const formatCurrency = (price) => {
