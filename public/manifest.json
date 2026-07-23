@@ -1,0 +1,24 @@
+{
+  "short_name": "MK2 Store",
+  "name": "MK2 Sportwear - Catálogo Oficial",
+  "description": "Catálogo oficial da loja MK2 Sportwear. Tênis de corrida com 10% OFF no PIX e atendimento com Inteligência Artificial.",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#1A1A1D",
+  "theme_color": "#F2B41A",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -13,9 +13,12 @@ const formatCurrency = (price) => {
 const Header = ({ cartCount, onOpenCart, onHome, onOpenAI }) => (
   <header className="header">
     <div className="container header-content">
-      <div className="logo" style={{cursor: 'pointer'}} onClick={onHome}>
-        MK2
-        <span className="logo-sub">SPORTWEAR</span>
+      <div className="logo-wrap" style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px'}} onClick={onHome}>
+        <img src="/pwa-192x192.png" alt="MK2 Sportwear Logo" className="header-logo-icon" />
+        <div className="logo">
+          MK2
+          <span className="logo-sub">SPORTWEAR</span>
+        </div>
       </div>
       <div className="header-actions">
         <button className="icon-btn ai-header-btn" onClick={onOpenAI} aria-label="Assistente IA" title="Assistente de Vendas IA">
@@ -607,6 +610,55 @@ Regras obrigatórias:
   );
 };
 
+// Component: PWA Install Banner
+const PWAInstallBanner = () => {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowBanner(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowBanner(false);
+    }
+    setDeferredPrompt(null);
+  };
+
+  if (!showBanner) return null;
+
+  return (
+    <div className="pwa-install-banner">
+      <div className="pwa-banner-content">
+        <img src="/pwa-192x192.png" alt="MK2 App Logo" className="pwa-banner-icon" />
+        <div className="pwa-banner-text">
+          <h4>Instalar App MK2 Sportwear</h4>
+          <p>Acesse o catálogo com 1 toque na tela inicial!</p>
+        </div>
+      </div>
+      <div className="pwa-banner-actions">
+        <button className="btn-primary pwa-install-btn" onClick={handleInstall}>
+          INSTALAR
+        </button>
+        <button className="pwa-dismiss-btn" onClick={() => setShowBanner(false)}>
+          <X size={18} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -770,6 +822,7 @@ function App() {
       />
 
       <ToastNotification message={toastMessage} onClose={() => setToastMessage(null)} />
+      <PWAInstallBanner />
 
       {currentView === 'catalog' && (
         <>
